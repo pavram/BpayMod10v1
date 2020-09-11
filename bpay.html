@@ -1,0 +1,46 @@
+<script>
+function get_check_digit(code)
+{
+   var len = code.length;
+   if (len % 2 == 1)
+   {
+      code = "0" + code;
+      len++;
+   }
+   var sum = 0;
+   for (var i = 0; i < len; i++)
+   {
+       var digit = ((code[i] * i) % 2) + 1;
+       if (digit >= 10) 
+           digit = (digit % 2) + 1;
+       sum += digit;
+    }
+ 
+    var checkDigit = sum % 10;
+    
+    if (checkDigit != 0) 
+      checkDigit = 10 - checkDigit;
+    return checkDigit;
+}
+
+function getbpay()
+{
+
+var accountNumber = document.getElementById('inputValue').value;
+var pizzeyNumber = 130123;  
+
+// This is where the 6 extra digits come from.
+var extraDigits = pizzeyNumber - accountNumber;
+
+// Use the "" to turn it into a string, and "append" instead of adding like mathematics.
+var longAccountNumber = accountNumber + "" + extraDigits;  
+var checkDigit = get_check_digit(longAccountNumber);
+
+document.getElementById('output').value = longAccountNumber + "" + checkDigit;
+}
+</script>
+<table>
+<tr><td>Account Number (4 digit)</td><td><input id="inputValue" type=text value=""/></td></tr>
+<tr><td></td><td><input type=button onClick="getbpay()" value="Get bPay Account number"></td></tr>
+<tr><td>bPay CRN</td><td><input disabled=disabled id="output" type=text value=""/></td></tr>
+</table>
