@@ -1,46 +1,90 @@
+<head>
+<style>
+  textarea {
+    width: 800px;
+    height: 200px;
+  }
+  .hide {
+    display: none;
+    visiblility: hidden;
+  }
+</style>
 <script>
-function get_check_digit(code)
-{
-   var len = code.length;
-   if (len % 2 == 1)
-   {
-      code = "0" + code;
-      len++;
-   }
-   var sum = 0;
-   for (var i = 0; i < len; i++)
-   {
-       var digit = ((code[i] * i) % 2) + 1;
-       if (digit >= 10) 
-           digit = (digit % 2) + 1;
-       sum += digit;
-    }
- 
-    var checkDigit = sum % 10;
-    
-    if (checkDigit != 0) 
-      checkDigit = 10 - checkDigit;
-    return checkDigit;
+var get_bpay;
+var get_check_digit;
+
+function reloadCode() {
+  var code_checkdigit = document.getElementById('code_checkdigit').value;
+  var code_getbpay = document.getElementById('code_getbpay').value;
+
+  get_check_digit = new Function('code', code_checkdigit);
+  get_bpay = new Function(code_getbpay);
+  document.getElementById('output').value = 'ready';
 }
 
-function getbpay()
-{
-
-var accountNumber = document.getElementById('inputValue').value;
-var pizzeyNumber = 130123;  
-
-// This is where the 6 extra digits come from.
-var extraDigits = pizzeyNumber - accountNumber;
-
-// Use the "" to turn it into a string, and "append" instead of adding like mathematics.
-var longAccountNumber = accountNumber + "" + extraDigits;  
-var checkDigit = get_check_digit(longAccountNumber);
-
-document.getElementById('output').value = longAccountNumber + "" + checkDigit;
+function toggle_code() {
+   var hidden_code = document.getElementsByClassName("hide");
+   var all_code = Array.from(document.getElementsByClassName("code"));
+   if (hidden_code.length > 0) all_code.forEach(ele => ele.className = "code");
+   else all_code.forEach(ele => ele.className = "code hide");
+   
 }
 </script>
+</head>
+<body>
+
 <table>
-<tr><td>Account Number (4 digit)</td><td><input id="inputValue" type=text value=""/></td></tr>
-<tr><td></td><td><input type=button onClick="getbpay()" value="Get bPay Account number"></td></tr>
+<tr><td>Account Number (4 digit)</td><td><input id="inputValue" type=text value=""/></td><td><input id=includeAccount type=checkbox checked=checked/><label for=includeAccount>Include in Output?</label></td></tr>
+<tr><td></td><td><input type=button onClick="get_bpay()" value="Get bPay Account number"></td></tr>
 <tr><td>bPay CRN</td><td><input disabled=disabled id="output" type=text value=""/></td></tr>
+
+<tr><td colspan="3">
+<textarea id="long_output"></textarea>
+</td></tr>
+<tr><td><input type=button onClick="toggle_code()" value="show/hide code"></td></tr>
+<tr class="code hide"><td colspan="3">
+Calculates the checkdigit based on a 10 digit CRN.<br/>
+<textarea id="code_checkdigit">
+    code+="0";
+    var codeLength = code.length;
+    var codeLengthParity = codeLength % 2;
+    var luhnChecksum = 0;
+    var luhnCheckDigit;
+    for (var i = codeLength-1; i >= 0; i--) {
+        var luhnDigit = parseInt(code.charAt(i));
+        if (i % 2 == codeLengthParity){luhnDigit *= 2;}
+        if (luhnDigit > 9){luhnDigit -= 9;}
+        luhnChecksum += luhnDigit;
+    }
+    luhnCheckDigit = luhnChecksum %10;
+    return (luhnCheckDigit == 0) ? 0 : 10 - luhnCheckDigit;
+</textarea>
+</td></tr>
+<tr class="code hide"><td colspan="3">
+Converts 4 digit number, into 10 CRN.  Then calculates the check digit and outputs the results.<br>
+<textarea id="code_getbpay">
+    var accountNumber = document.getElementById('inputValue').value;
+    var pizzeyNumber = 130123;  
+    
+    // This is where the 6 extra digits come from.
+    var extraDigits = pizzeyNumber - accountNumber;
+    
+    // Use the "" to turn it into a string, and "append" instead of adding like mathematics.
+    var longAccountNumber = accountNumber + "" + extraDigits;  
+    var checkDigit = get_check_digit(longAccountNumber);
+    
+    document.getElementById('output').value = longAccountNumber + "" + checkDigit;
+
+    if (document.getElementById('includeAccount').checked) {
+        document.getElementById('long_output').value += accountNumber + '\t'; 
+    }
+    document.getElementById('long_output').value += longAccountNumber + "" + checkDigit + '\n'; 
+</textarea>
+</td></tr>
+<tr class="code hide"><td></td><td><input type=button onClick="reloadCode()" value="reload Script"></td></tr>
 </table>
+<script type="text/javascript">
+reloadCode();
+</script>
+
+</body>
