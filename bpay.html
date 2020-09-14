@@ -43,6 +43,30 @@ function button_getSingleBpay()
     document.getElementById('long_output').value += bpayCRN + '\n'; 
 }
 
+function button_getMultiBpay()
+{
+    var accountNumbers = document.getElementById('input_multi').value;
+    var accountNumberLines = accountNumbers.split('\n');
+    var CRNValues = [];
+    document.getElementById('output_multi').value = "";
+    for(var i = 0;i < accountNumberLines.length;i++)
+    {
+        var outputRow = "";
+        if (!(accountNumberLines[i].trim() === "")) 
+        {
+            CRNValues[i] = get_BCL_bpayCRN(accountNumberLines[i]);
+        
+            outputRow = CRNValues[i] + '\n';
+            if (document.getElementById('includeAccountMulti').checked)
+            {
+                 outputRow = accountNumberLines[i] + '\t' + outputRow;
+            }
+    
+            document.getElementById('output_multi').value += outputRow;
+        }
+    }
+}
+
 </script>
 </head>
 <body>
@@ -110,18 +134,40 @@ function button_getSingleBpay()
 		<td></td>
 		<td><input type=button onClick="reloadCode()" value="reload Script"></td>
 	</tr>
-
-
-<tr>
-<td colspan="2">
-<textarea id="input_multi">
-</textarea>
-</td>
-<td colspan"2">
-<textarea id="output_multi">
-</textarea>
-</td>
-</tr>
+</table>
+<table>
+	<tr>
+		<td>
+			Paste Bar Roll numbers, one per line.  (4 digits only).  - You can paste columns direct from Excel.<br/>
+			example:<br/>
+                        1234<br/>
+			4567<br/>
+			3527<br/>
+		</td>
+		<td/>
+		<td>
+			Tip:  
+			<ul>
+				<li>Click inside the output box</li>
+				<li>press Ctrl-A to select all</li>
+				<li>Then Ctrl-C to copy.</li>
+			</ul>
+		</td>
+	</tr>
+	<tr>
+		<td>
+			Input<br/>
+			<textarea id="input_multi"></textarea>
+		</td>
+		<td>
+			<input id=includeAccountMulti type=checkbox checked=checked/><label for=includeAccountMulti>Include BRN in Output?</label><br/>
+			<input type=button onClick="button_getMultiBpay()" value="&gt;&gt;&gt; Get Batch CRNs &gt;&gt;&gt;"></td>
+		</td>
+		<td>
+			Output<br/>
+			<textarea id="output_multi"></textarea>
+		</td>
+	</tr>
 </table>
 
 <script type="text/javascript">
