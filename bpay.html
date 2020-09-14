@@ -10,7 +10,7 @@
   }
 </style>
 <script>
-var get_bpay;
+var get_BCL_bpayCRN;
 var get_check_digit;
 
 function reloadCode() {
@@ -18,7 +18,7 @@ function reloadCode() {
   var code_getbpay = document.getElementById('code_getbpay').value;
 
   get_check_digit = new Function('code', code_checkdigit);
-  get_bpay = new Function(code_getbpay);
+  get_BCL_bpayCRN = new Function('accountNumber', code_getbpay);
   document.getElementById('output').value = 'ready';
 }
 
@@ -29,22 +29,48 @@ function toggle_code() {
    else all_code.forEach(ele => ele.className = "code hide");
    
 }
+
+function button_getSingleBpay()
+{
+    var accountNumber = document.getElementById('inputValue').value;
+    var bpayCRN = get_BCL_bpayCRN(accountNumber);
+
+    document.getElementById('output').value = bpayCRN;
+
+    if (document.getElementById('includeAccount').checked) {
+        document.getElementById('long_output').value += accountNumber + '\t'; 
+    }
+    document.getElementById('long_output').value += bpayCRN + '\n'; 
+}
+
 </script>
 </head>
 <body>
 
 <table>
-<tr><td>Account Number (4 digit)</td><td><input id="inputValue" type=text value=""/></td><td><input id=includeAccount type=checkbox checked=checked/><label for=includeAccount>Include in Output?</label></td></tr>
-<tr><td></td><td><input type=button onClick="get_bpay()" value="Get bPay Account number"></td></tr>
-<tr><td>bPay CRN</td><td><input disabled=disabled id="output" type=text value=""/></td></tr>
-
-<tr><td colspan="3">
-<textarea id="long_output"></textarea>
-</td></tr>
-<tr><td><input type=button onClick="toggle_code()" value="show/hide code"></td></tr>
-<tr class="code hide"><td colspan="3">
-Calculates the checkdigit based on a 10 digit CRN.<br/>
-<textarea id="code_checkdigit">
+	<tr>
+		<td>Account Number (4 digit)</td>
+		<td><input id="inputValue" type=text value=""/></td>
+		<td><input id=includeAccount type=checkbox checked=checked/><label for=includeAccount>Include in Output?</label></td>
+	</tr>
+	<tr>
+		<td></td>
+		<td><input type=button onClick="button_getSingleBpay()" value="Get bPay Account number"></td>
+	</tr>
+	<tr>
+		<td>bPay CRN</td>
+		<td><input disabled=disabled id="output" type=text value=""/></td>
+	</tr>
+	<tr>
+		<td colspan="3"><textarea id="long_output"></textarea></td>
+	</tr>
+	<tr>
+		<td><input type=button onClick="toggle_code()" value="show/hide code"></td>
+	</tr>
+	<tr class="code hide">
+		<td colspan="3">
+			Calculates the checkdigit based on a 10 digit CRN.<br/>
+			<textarea id="code_checkdigit">
     code+="0";
     var codeLength = code.length;
     var codeLengthParity = codeLength % 2;
@@ -59,11 +85,13 @@ Calculates the checkdigit based on a 10 digit CRN.<br/>
     luhnCheckDigit = luhnChecksum %10;
     return (luhnCheckDigit == 0) ? 0 : 10 - luhnCheckDigit;
 </textarea>
-</td></tr>
-<tr class="code hide"><td colspan="3">
-Converts 4 digit number, into 10 CRN.  Then calculates the check digit and outputs the results.<br>
-<textarea id="code_getbpay">
-    var accountNumber = document.getElementById('inputValue').value;
+		</td>
+	</tr>
+	<tr class="code hide">
+		<td colspan="3">
+			Converts 4 digit number, into 10 CRN.  Then calculates the check digit and outputs the results.<br>
+			<textarea id="code_getbpay">
+    // variable accountNumber will be the parameter. 
     var pizzeyNumber = 130123;  
     
     // This is where the 6 extra digits come from.
@@ -73,16 +101,29 @@ Converts 4 digit number, into 10 CRN.  Then calculates the check digit and outpu
     var longAccountNumber = accountNumber + "" + extraDigits;  
     var checkDigit = get_check_digit(longAccountNumber);
     
-    document.getElementById('output').value = longAccountNumber + "" + checkDigit;
-
-    if (document.getElementById('includeAccount').checked) {
-        document.getElementById('long_output').value += accountNumber + '\t'; 
-    }
-    document.getElementById('long_output').value += longAccountNumber + "" + checkDigit + '\n'; 
+    // This is our long-account number with check-digit.
+    return longAccountNumber + "" + checkDigit;
 </textarea>
-</td></tr>
-<tr class="code hide"><td></td><td><input type=button onClick="reloadCode()" value="reload Script"></td></tr>
+		</td>
+	</tr>
+	<tr class="code hide">
+		<td></td>
+		<td><input type=button onClick="reloadCode()" value="reload Script"></td>
+	</tr>
+
+
+<tr>
+<td colspan="2">
+<textarea id="input_multi">
+</textarea>
+</td>
+<td colspan"2">
+<textarea id="output_multi">
+</textarea>
+</td>
+</tr>
 </table>
+
 <script type="text/javascript">
 reloadCode();
 </script>
