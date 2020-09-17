@@ -49,21 +49,32 @@ function button_getMultiBpay()
     var accountNumberLines = accountNumbers.split('\n');
     var CRNValues = [];
     document.getElementById('output_multi').value = "";
-    for(var i = 0;i < accountNumberLines.length;i++)
+    var i = 0;
+
+    while(accountNumberLines[i].trim() === "" && i < accountNumberLines.length)
+    {
+        // Don't keep any completely empty spaces at the top.
+        i++;
+    }
+    for(;i < accountNumberLines.length;i++)
     {
         var outputRow = "";
-        if (!(accountNumberLines[i].trim() === "")) 
+        if (!(accountNumberLines[i].trim() === "") && !isNaN(accountNumberLines[i].trim()))
         {
-            CRNValues[i] = get_BCL_bpayCRN(accountNumberLines[i]);
+            CRNValues[i] = get_BCL_bpayCRN(accountNumberLines[i].trim());
         
             outputRow = CRNValues[i] + '\n';
-            if (document.getElementById('includeAccountMulti').checked)
-            {
-                 outputRow = accountNumberLines[i] + '\t' + outputRow;
-            }
-    
-            document.getElementById('output_multi').value += outputRow;
         }
+        else
+        {
+            // for empty rows output an empty row.
+            outputRow = '\n';
+        }
+        if (document.getElementById('includeAccountMulti').checked)
+        {
+             outputRow = accountNumberLines[i] + '\t' + outputRow;
+        }
+        document.getElementById('output_multi').value += outputRow;
     }
 }
 
